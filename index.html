@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus in Animal Husbandry: Kedah-Kelantan Cattle Growth</title>
+    <!-- Tailwind CSS for Modern Styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Chart.js for Interactive Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-emerald-600 to-green-700 text-white rounded-2xl p-6 shadow-lg mb-8 text-center">
+            <span class="bg-emerald-500/30 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                SFH: Animal Husbandry Technology Application
+            </span>
+            <h1 class="text-3xl font-extrabold mt-2">Visualizing Cattle Growth Rates via Derivatives</h1>
+            <p class="text-emerald-100 mt-2 text-sm max-w-2xl mx-auto">
+                An interactive simulator modeling the weight gain profile of Malaysia's indigenous <strong>Kedah-Kelantan (KK) cattle</strong> using calculus.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel: Problem Statement & Math Formulas -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Bioscience Context -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100">
+                    <h2 class="text-lg font-bold text-emerald-800 mb-2">🐄 The Bioscience Scenario</h2>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        In intensive Malaysian animal husbandry, tracking the <strong>Average Daily Gain (ADG)</strong> is critical for optimizing feed efficiency and determining the precise market readiness age. 
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                        For local <strong>Kedah-Kelantan (KK) bulls</strong>, growth follows a sigmoidal (S-shaped) curve. While the weight curve $f(x)$ shows current mass, its <strong>derivative $f'(x)$</strong> calculates the exact rate of weight gain (ADG) at any given month.
+                    </p>
+                    <div class="mt-3 text-xs text-gray-400 italic border-t pt-2 border-gray-100">
+                        Data adapted from reference standards: <em>"Growth Profiles of Malaysian Kedah-Kelantan Cattle"</em> (MARDI Research Journal).
+                    </div>
+                </div>
+
+                <!-- Mathematical Formulas -->
+                <div class="bg-emerald-900 text-emerald-100 p-6 rounded-2xl shadow-sm space-y-4">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        📐 The Calculus Model
+                    </h2>
+                    <div>
+                        <span class="text-xs text-emerald-400 block uppercase font-mono tracking-wider">Growth Function $f(x)$</span>
+                        <p class="text-sm font-mono bg-emerald-950/50 p-2 rounded mt-1 text-center border border-emerald-800">
+                            $$f(x) = \frac{280}{1 + 9.36 \cdot e^{-0.15x}}$$
+                        </p>
+                        <span class="text-xs text-emerald-300 mt-1 block">Yields total body weight (kg) at month $x$.</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-emerald-400 block uppercase font-mono tracking-wider">Derivative $f'(x)$ (Growth Rate)</span>
+                        <p class="text-sm font-mono bg-emerald-950/50 p-2 rounded mt-1 text-center border border-emerald-800">
+                            $$f'(x) = \frac{393.12 \cdot e^{-0.15x}}{(1 + 9.36 \cdot e^{-0.15x})^2}$$
+                        </p>
+                        <span class="text-xs text-emerald-300 mt-1 block">Yields instant growth rate (kg/month) at month $x$. Divide by 30 for Daily Gain.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Interactive Graph & Dynamic Output -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Interactive Chart Wrapper -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Growth Profile Curve (0 - 24 Months)</h2>
+                        <span class="text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-medium animate-pulse">
+                            💡 Click anywhere on the chart line!
+                        </span>
+                    </div>
+                    <div class="relative h-80 w-full">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Real-time Dynamic Analytics Panel -->
+                <div id="dashboard-placeholder" class="bg-gray-50 border-2 border-dashed border-gray-200 text-gray-500 rounded-2xl p-8 text-center">
+                    <p class="font-medium">No point selected yet.</p>
+                    <p class="text-xs mt-1">Click on the chart data line to activate the Bioscience Derivative Calculator.</p>
+                </div>
+
+                <div id="dashboard-result" class="hidden bg-white p-6 rounded-2xl shadow-md border-2 border-emerald-500 grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-300">
+                    <div class="bg-emerald-50 p-4 rounded-xl text-center md:col-span-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Selected Age</span>
+                        <div class="text-3xl font-black text-emerald-900 mt-1" id="out-age">12 <span class="text-sm font-normal">mo</span></div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl text-center md:col-span-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-600">Current Weight $f(x)$</span>
+                        <div class="text-3xl font-black text-gray-800 mt-1" id="out-weight">120.5 <span class="text-sm font-normal">kg</span></div>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-xl text-center md:col-span-1 border border-amber-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Growth Rate $f'(x)$</span>
+                        <div class="text-3xl font-black text-amber-900 mt-1" id="out-rate">10.2 <span class="text-sm font-normal">kg/mo</span></div>
+                        <span class="text-[10px] text-amber-600 block mt-1 font-mono" id="out-adg">(~0.34 kg/day ADG)</span>
+                    </div>
+                    <div class="md:col-span-3 border-t border-gray-100 pt-4">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">👨‍🌾 Layman Interpretation:</span>
+                        <p class="text-sm text-gray-700 font-medium leading-relaxed" id="out-explain">
+                            Loading explanation...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Footer Context -->
+        <footer class="mt-12 text-center text-xs text-gray-400 border-t border-emerald-100 pt-4">
+            Designed for SFH: Animal Husbandry Technology Curriculum Integration • Built with Chart.js & Tailwind CSS.
+        </footer>
+    </div>
+
+    <!-- MathJax for rendering the LaTeX formulas cleanly -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+    <!-- App Logic Script -->
+    <script>
+        // Mathematical Functions
+        // f(x) = 280 / (1 + 9.36 * e^(-0.15 * x))
+        function calculateWeight(x) {
+            return 280 / (1 + 9.36 * Math.exp(-0.15 * x));
+        }
+
+        // f'(x) = (393.12 * e^(-0.15 * x)) / (1 + 9.36 * Math.exp(-0.15 * x))^2
+        function calculateDerivative(x) {
+            const numerator = 393.12 * Math.exp(-0.15 * x);
+            const denominator = Math.pow(1 + 9.36 * Math.exp(-0.15 * x), 2);
+            return numerator / denominator;
+        }
+
+        // Generate dataset from month 0 to 24
+        const labels = [];
+        const weightData = [];
+        const derivativeData = [];
+
+        for (let x = 0; x <= 24; x++) {
+            labels.push(x);
+            weightData.push(calculateWeight(x).toFixed(1));
+            derivativeData.push(calculateDerivative(x).toFixed(2));
+        }
+
+        // Get Layman Explanation based on growth dynamics
+        function getLaymanExplanation(month, weight, rate) {
+            const adg = (rate / 30).toFixed(2);
+            if (month <= 6) {
+                return `The calf is currently in its early developmental stage. At ${month} months old, it weighs ${weight}kg. The growth rate is rising rapidly at ${rate}kg/month (approx. ${adg}kg daily gain) due to high feed conversion efficiency post-weaning.`;
+            } else if (month > 6 && month <= 15) {
+                return `This is the peak growth window (inflection zone). At ${month} months, the animal is gaining weight at its maximum velocity of ${rate}kg/month (~${adg}kg/day). This is the most economically vital phase where high-quality forage/napier grass maximizes muscle mass structural yield!`;
+            } else {
+                return `The cattle is approaching physiological maturity at ${month} months (${weight}kg). The growth rate has slowed down dramatically to just ${rate}kg/month (~${adg}kg/day). Keeping the animal past this stage yields diminishing returns on feed costs; it is reaching optimal market slaughter weight.`;
+            }
+        }
+
+        // Chart.js Configuration
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Live Body Weight f(x) (kg)',
+                    data: weightData,
+                    borderColor: '#10b981', // Emerald 500
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    yAxisID: 'y'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Age of Cattle (Months)',
+                            font: { weight: 'bold' }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)',
+                            font: { weight: 'bold' }
+                        },
+                        min: 0,
+                        max: 300
+                    }
+                },
+                // Trigger event handler on clicking data points
+                onClick: (e) => {
+                    const points = growthChart.getElementsAtEventForMode(e, 'nearest', { intersect: false }, true);
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const index = firstPoint.index;
+                        const selectedMonth = growthChart.data.labels[index];
+                        
+                        // Recalculate precise figures
+                        const weight = calculateWeight(selectedMonth).toFixed(1);
+                        const rate = calculateDerivative(selectedMonth).toFixed(2);
+                        const adg = (rate / 30).toFixed(2);
+
+                        // Swap placeholders and reveal values
+                        document.getElementById('dashboard-placeholder').classList.add('hidden');
+                        const resultsPanel = document.getElementById('dashboard-result');
+                        resultsPanel.classList.remove('hidden');
+
+                        document.getElementById('out-age').innerHTML = `${selectedMonth} <span class="text-sm font-normal">mo</span>`;
+                        document.getElementById('out-weight').innerHTML = `${weight} <span class="text-sm font-normal">kg</span>`;
+                        document.getElementById('out-rate').innerHTML = `${rate} <span class="text-sm font-normal">kg/mo</span>`;
+                        document.getElementById('out-adg').innerHTML = `(~${adg} kg/day Average Daily Gain)`;
+                        
+                        // Output contextual lay explanation
+                        document.getElementById('out-explain').innerText = getLaymanExplanation(selectedMonth, weight, rate);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
